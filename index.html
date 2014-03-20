@@ -8,6 +8,8 @@ value="Forrest Gump is a 1994 American epic romantic comedy-drama film based on 
 <!--<input type="textarea" id="mainText"
 value="Batman is a fictional character, a comic book superhero appearing in comic books published by DC Comics . Batman was created by artist Bob Kane and writer Bill Finger ."></input>-->
 <button>Create Graph</button>
+<button onclick="generateQuestions()">Generate Questions</button>
+<button onclick="displayAnswers()">Generate Q/A</button>
 <div id="easyQuestion" value="">
 </div>
 <div id="mediumQuestion" value="">
@@ -19,6 +21,11 @@ value="Batman is a fictional character, a comic book superhero appearing in comi
 <div id="mediumAnswer" data-text="Who directed Forrest Gump ?">
 </div>
 <div id="hardAnswer" value="">
+</div>
+<br>
+<div id="questionDisplay" value="">
+</div>
+<div id="answerDisplay" value="">
 </div>
 <!--- "Forrest Gump is a 1994 American epic romantic comedy-drama film based on the 1986 novel of the same name by Winston Groom . The film was directed by Robert Zemeckis and starred Tom Hanks, Robin Wright, Gary Sinise and Sally Field ." -->
 
@@ -78,6 +85,12 @@ function isValidDate(text)	{
 	}
 }
 
+function displayAnswers()	{
+	document.getElementById('questionDisplay').innerHTML = document.getElementById('mediumAnswer').dataset.text;
+	document.getElementById('answerDisplay').innerHTML = answerQuestions();
+
+}
+
 function generateQuestions()	{
 	var q = askQuestions();
 	displayQuestions(q);
@@ -132,6 +145,8 @@ function answerQuestions()	{
 	//return processQuestion(question1);
 	//return 
 }
+
+
 
 function getQuestionTag(text)	{
 	var text = text.toLowerCase();
