@@ -1,0 +1,818 @@
+<html>
+<body>
+<input type="textarea" id="mainText"
+value="Forrest Gump is a 1994 American epic romantic comedy-drama film based on the 1986 novel of the same name by Winston Groom . The film was directed by Robert Zemeckis and starred Tom Hanks, Robin Wright, Gary Sinise and Sally Field . The film earned over $677 million worldwide during its theatrical run . Released in the United States on July 6, 1994, Forrest Gump received critical acclaim . Tom Hanks was from United Kingdom . He won Best Actor . "></input>
+<!--<input type="textarea" id="mainText"
+value="Batman is a fictional character, a comic book superhero appearing in comic books published by DC Comics . Batman was created by artist Bob Kane and writer Bill Finger ."></input>-->
+<button>Create Graph</button>
+<div id="easyQuestion" value="">
+</div>
+<div id="mediumQuestion" value="">
+</div>
+<div id="hardQuestion" value="">
+</div>
+<div id="easyAnswer" data-text="When was Forrest Gump made ?">
+</div>
+<div id="mediumAnswer" data-text="Who directed Forrest Gump ?">
+</div>
+<div id="hardAnswer" value="">
+</div>
+<!--- "Forrest Gump is a 1994 American epic romantic comedy-drama film based on the 1986 novel of the same name by Winston Groom . The film was directed by Robert Zemeckis and starred Tom Hanks, Robin Wright, Gary Sinise and Sally Field ." -->
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+<script src="springy.js"></script>
+<script src="countries.js"></script>
+<script src="springyui.js"></script>
+<script type="text/javascript" src="lexer.js"></script>
+<script type="text/javascript" src="lexicon.js_"></script>
+<script type="text/javascript" src="POSTagger.js"></script>
+<script>
+window.onload = function()	{
+	
+	var text = document.getElementById("mainText").value;
+	//alert(text);
+	var obj = processText(text);
+	//listOfObjs = obj;
+	/*var obj = [
+			{
+			previous: 'abc',
+			connector : 'is',
+			next: 'def'
+			},
+			{
+			previous: 'ghi',
+			connector : 'of',
+			next: 'def'
+			}
+	
+	]*/
+	createGraph(obj);
+}
+
+function answerQuestions()	{
+	var question1 = document.getElementById('mediumAnswer').dataset.text;
+	return processQuestion(question1);
+	//return processQuestion(question1);
+	//return 
+}
+
+function getQuestionTag(text)	{
+	var text = text.toLowerCase();
+	switch(text) {
+	case "when":
+	  return "date"
+	  break;
+	case "where":
+	  return "location"
+	  break;
+	default:
+	  return "misc"
+	}
+}
+
+function processQuestion(text)	{
+	var arr = preProcess(text);
+	//arr = posTagText(text);
+	//var str = text;
+	//var arr = str.replace(/[^\w\s]|_/g, function ($1) { return ' ' + $1 + ' ';}).replace(/[ ]+/g, ' ').split(' ');
+	//console.log("Hello all",arr[0]);
+	var questionTag = getQuestionTag(arr[0][0]);
+	console.log("MANG",questionTag);
+	//return "prob";
+	var keyTag = "";
+	if (questionTag === "misc")	{
+		//return "prob"
+		keyTag = arr[0][0];
+	}
+	var keyWord = "";
+	for (var j = 0 ; j < arr[1].length; j++ )	{
+		var tag = arr[1][j];
+		//console.log("TAGS123",tag)
+		var word = arr[0][j];
+		if (i === 0)	{
+			continue;
+		}
+		else if (tag.indexOf("NN") === -1) {
+			continue;
+		}
+		else {
+			keyWord = word;
+		}
+	}
+	//console.log("HERE",questionTag,keyWord);
+	for (var i = 0 ; i < graph.nodes.length ; i++)	{
+		var node = graph.nodes[i];
+		var label = graph.nodes[i].data.label;
+		if (label === keyWord)	{
+			
+			var outgoingEdges = node.outgoingEdges;
+			//console.log("MEGA1",outgoingEdges);
+			var mostSimilarPercentage = 0;
+			var mostSimilarEdge = null;
+			for (var k = 0 ; k < outgoingEdges.length ; k++)	{
+				
+				if (questionTag === "misc")	{
+					if (outgoingEdges[k].data.label)	{
+						console.log("MEGAHERE",outgoingEdges[k].data.label);
+						var tempPercentage = similar_text(keyTag, outgoingEdges[k].data.label, 100);
+						console.log("MEGAHERE",outgoingEdges[k].data.label,tempPercentage);
+						if (tempPercentage > mostSimilarPercentage)	{
+							mostSimilarPercentage = tempPercentage;
+							mostSimilarEdge = outgoingEdges[k];
+						}
+					}
+				}
+				else {
+					if (questionTag === outgoingEdges[k].data.label)	{
+						//(outgoingEdges[k].target.data.label)	{
+							
+						var str = outgoingEdges[k].target.data.label;
+						//console.log("HUFFDAWG",str);
+						return str;
+						//return outgoingEdges[k].target.data.label;
+					}
+				}
+			}
+			if (questionTag === "misc")	{
+				console.log("MEGA1",label,keyTag);
+				return mostSimilarEdge.target.data.label;
+			}
+
+		}
+
+	}
+	return "abc";
+	//return arr;
+}
+
+function posTagText(text)	{
+	var wordArray = [];
+	var tagArray = [];
+	var words = new Lexer().lex(text);
+	var taggedWords = new POSTagger().tag(words);
+	var result = "";
+	for (i in taggedWords) {
+	  var taggedWord = taggedWords[i];
+	  var word = taggedWord[0];
+	  var tag = taggedWord[1];
+	  // Note the use of document.writeln instead of print
+	  //result += (word + " /" + tag + "<br/>");
+	  result += word+" "+tag+" "
+	  wordArray.push(word);
+	  tagArray.push(tag);
+	}
+	//document.getElementById("tagged_text").innerHTML = result;
+	console.log(result);
+	return [result,wordArray,tagArray];
+}
+
+function isNoun(tag)	{
+	if (tag.indexOf("NN") != -1)	{
+		return true;
+	}
+	return false;
+}
+
+function isDT(tag)	{
+	if (tag.indexOf("DT") != -1)	{
+		return true;
+	}
+	return false;
+}
+
+function isAdj(tag)	{
+	if (tag.indexOf("JJ") != -1)	{
+		return true;
+	}
+	return false;
+}
+
+function isCD(tag)	{
+	if (tag.indexOf("CD") != -1)	{
+		return true;
+	}
+	return false;
+}
+
+/*function isDate(tag)	{
+	if (tag.length)	{
+	alert("sdasd")
+		return true;
+	}
+	return false;
+}*/
+
+function isStop(tag)	{
+	if (tag.indexOf(".") != -1)	{
+		return true;
+	}
+	return false;
+}
+
+function isCurrency(tag)	{
+	if (tag === "$")	{
+		return true;
+	}
+	return false;
+}
+
+function isRB(tag)	{
+	if (tag.indexOf("RB") != -1)	{
+		return true;
+	}
+	return false;
+}
+
+function isCC(tag)	{
+	if (tag.indexOf("CC") != -1)	{
+		return true;
+	}
+	return false;
+}
+
+function containsLocation(text)	{
+	//var arr = ["United States"];//, "Great Britain"];
+	var arr = [];
+	for (var k = 0 ; k < countries.length ; k++)	{
+		arr.push(countries[k].name);
+	}
+	var str = text;
+	var words = str.replace(/[^\w\s]|_/g, function ($1) { return ' ' + $1 + ' ';}).replace(/[ ]+/g, ' ').split(' ');
+	var len = words.length
+	var words2 = words.join(' ');
+	var locations = [];
+	for (var i = 0 ; i < arr.length ; i++)	{
+		//for 
+		var location = arr[i];
+		if (text.indexOf(location) != -1)	{
+			var ind = text.indexOf(location);
+			var temp = 0;
+			var actualWords = 0;
+			for (var j = 0 ; j < words.length ; j++)	{
+				if (temp < ind)	{
+					temp+= words[j].length+1;
+					actualWords += 1;
+				}
+				else {
+					break
+				}
+			}
+			var count = location.match(/ /g);
+			locations.push([actualWords-1, count.length+1]);
+
+			//locations.push([text.indexOf(location),location.split(' ').length]);
+		}
+	}
+	if (locations.length > 0)	{
+		return locations;
+	}
+	else {
+		return null;
+	}
+}
+
+function preProcess(text)	{
+	var locations = containsLocation(text);
+	//alert(locations);
+	//if (location != -1)	{
+		
+	//}
+	var posTags = posTagText(text);
+	var wordArray = posTags[1];
+	var sentence = posTags[0];
+	var tagArray = posTags[2];
+	//alert(locations)
+	if (locations)	{
+		for (var k = 0 ; k < locations.length; k++)	{
+			var temp = locations[k];
+			var start = temp[0];
+			var len = temp[1];
+			
+			for (var m = 0 ; m < len ; m++)	{
+				//wordArray[]
+				var index = start+m
+				tagArray[index] = "location";
+			}
+		}
+	}
+	console.log("TaGGGGs",tagArray);
+	var newWords = [];
+	var newTags = [];
+	//var streak = true;
+	var tempWord = "";
+	var tempWord2 = "";
+	var tempTag = "";
+	var locationTag = "";
+	var locationWord = "";
+	var prevWord = wordArray[0];
+	var prevTag = tagArray[0];
+	for (var i = 0 ; i < wordArray.length; i++)	{
+		var word = wordArray[i];
+		var tag = tagArray[i];
+		if (isDT(tag))	{
+			continue;
+		}
+		if (tag != "location" && locationWord != "")	{
+			locationWord[0] = "";
+			newWords.push(locationWord);
+			newTags.push("location");
+			locationWord = "";
+		}
+		if (i != 0)	{
+			prevWord = wordArray[i-1];
+			prevTag = tagArray[i-1];
+		}
+		if (isStop(tag))	{
+			if (tempWord != "")	{
+				newWords.push(tempWord);
+				newTags.push("NN");
+			}
+			if (tempWord2 != "")	{
+				newWords.push(tempWord2);
+				newTags.push("connector");
+			}
+			newWords.push(".");
+			newTags.push(".");
+			tempWord = "";
+			tempWord2 = "";
+		}
+		else if (isCD(tag) && !isCurrency(prevTag))	{
+			if (tempWord != "")	{
+				newWords.push(tempWord);
+				newTags.push("NN");
+			}
+			if (tempWord2 != "")	{
+				newWords.push(tempWord2);
+				newTags.push("connector");
+			}
+			tempWord = "";
+			tempWord2 = "";
+			newWords.push(word);
+			newTags.push("number");
+		}
+		//else if (isCurrency(tag))	{
+			
+		//}
+		else if (isNoun(tag) || isAdj(tag) || isRB(tag) || isCurrency(tag) || isCurrency(prevTag))	{
+			if (tempWord2 != "")	{
+				newWords.push(tempWord2);
+				newTags.push("connector");
+			}
+			tempWord2 = "";
+			if (tempWord === "")	{
+				tempWord += word;
+			}
+			else {
+				tempWord += " "+word
+			}
+		}
+		else if (tag === "location")	{
+			if (tempWord != "")	{
+				newWords.push(tempWord);
+				newTags.push("NN");
+			}
+			if (tempWord2 != "")	{
+				newWords.push(tempWord2);
+				newTags.push("connector");
+			}
+			tempWord = "";
+			tempWord2 = "";
+			locationWord += " "+word;
+			//newWords.push(word);
+			//newTags.push("location");
+		}
+		else {
+			if (tempWord != "")	{
+				newWords.push(tempWord);
+				//if (tag === "location")	{
+				//	alert(tag);
+				//	newTags.push("location");
+				//}
+				//else {
+					newTags.push("NN");
+				//}
+			}
+			if (tempWord2 === "")	{
+				tempWord2 += word;
+			}
+			else {
+				tempWord2 += " "+word
+			}
+			tempWord = "";
+		}
+	}
+	console.log(newWords);
+	console.log(newTags);
+	console.log(newWords.length === newTags.length);
+	return [newWords,newTags]
+}
+
+function processText(text)	{
+	var arr = preProcess(text);
+	newWords = arr[0];
+	newTags = arr[1];
+	var obj = null;
+	var listOfObjs = [];
+	var subject = "";
+	var mainSubject = "";
+	var turn = false;
+	var previousWord = newWords[0];
+	//var listofNodes =
+	//var timeFrame = {};
+	
+	function findConnectorNode(text,connector)	{
+		var iter = 50;
+		var array = listOfObjs.slice(0);
+		var temp = findParent(text,connector,array, iter);
+		if (temp)	{
+			var next = temp['next'];
+			var prev = temp['prev'];
+			var connect = temp['connector'];
+			for (var i = 0 ; i < listOfObjs.length ; i++)	{
+				var temp2 = listOfObjs[i];
+				var next2 = temp2['next'];
+				var prev2 = temp2['prev'];
+				var connect2 = temp2['connector'];
+				if (prev === prev2 && connect2 === connector)	{
+					return next2;
+				}
+			}
+		}
+		else {
+			return null;
+		}
+	}
+	
+	function findParent(text,connector,array, iter)	{
+			iter-=1;
+			if (iter < 10)	{
+				return null;
+			}
+		//while (true)	{
+			for (var i = 0 ; i < array.length ; i++)	{
+				var temp = array[i];
+				var next = temp['next'];
+				var prev = temp['prev'];
+				var connect = temp['connector'];
+				if (text === next)	{
+					var result = findParent(prev,connector,array.splice(i,1), iter);
+					if (!result)	{
+						//if (connector)	{
+						return temp;	
+						//}
+						//else {
+						
+						//}
+					}
+					//if ()	{
+					
+					//}
+				}
+				//else if (text === prev)	{
+					//return ;
+				//}
+				
+			}
+			return null;
+		//}
+	}
+	
+	function typeNN(relation)	{
+		//if (relation && relation.length < 2)	{
+		//	alert("probs");
+		//}
+		if (relation)	{
+			obj['connector'] = relation;
+		}
+		if (subject != "")	{
+			if (!obj['previous'])	{
+
+				obj['previous'] = subject;
+				obj['next'] = word;
+				subject = word;
+			}
+			else {
+				obj['next'] = word;
+				subject = "";
+			}
+			if (!obj['connector'])	{
+				obj = null;
+			}
+			else {
+				listOfObjs.push(obj);
+				obj = null;
+			}
+		}
+		else {
+			if (mainSubject != "")	{
+				
+				obj['previous'] = mainSubject;
+				obj['next'] = word;
+				if (obj['connector'])	{
+					//alert(mainSubject+" "+word);
+					listOfObjs.push(obj);
+				}
+				//listOfObjs.push(obj);
+				obj = null;
+				subject = mainSubject;
+			}
+			else {
+				obj = {};
+				mainSubject = word;
+				subject = word;
+				obj['previous'] = word;
+			}
+		}
+	}
+		
+	for (var j = 0 ; j < newWords.length ; j++)	{
+			var word = newWords[j];
+			var tag = newTags[j];
+			if (j != 0)	{
+				previousWord = newWords[j-1];
+			}
+			//if (previousWord ===)	{
+			
+			//}
+			if (!obj)	{
+				obj = {};
+			}
+			if (word.indexOf('during') != -1)	{
+				//alert(word);
+				//alert(subject);
+				if (subject != "")	{
+					var timeFrame = findConnectorNode(subject,"date");
+					var temp = {};
+					temp['next'] = timeFrame;
+					temp['previous'] = subject;
+					temp['connector'] = 'date';
+					listOfObjs.push(temp);
+					temp = null;
+				}
+				else {
+					var timeFrame = findConnectorNode(mainSubject,"date");
+					var temp = {};
+					temp['next'] = timeFrame;
+					temp['previous'] = mainSubject;
+					temp['connector'] = 'date';
+					listOfObjs.push(temp);
+					temp = null;
+				}
+				if (tag === 'connector')	{
+					if (obj)	{
+						if (!word || word.length === 0)	{
+						alert("probs");
+					}
+						obj['connector'] = word;
+					}
+				}
+			}
+			else if (tag === 'connector')	{
+				if (obj)	{
+					//if (!word || word.length === 0)	{
+					//	alert("probs");
+					//}
+					obj['connector'] = word;
+				}
+			}
+			else if (tag === "number")	{
+				//timeFrame[mainSubject] = word;
+				//timeFrame[subject] = word; 				
+				if (subject === "")	{
+					var x = newWords[j+1];
+					//var y = ]
+					newWords[j+1] = word;//newWords[j];
+					newWords[j] = x;
+					//newTags[j+1] = tag;
+					var y = newTags[j+1];
+					newTags[j+1] = tag;
+					newTags[j] = y;
+					tag = y;
+					
+					//newTags[j] = 
+					word = x;
+					typeNN();
+				}
+				else {
+					//timeFrame = word;
+					var temp = {};
+					temp['previous'] = subject;
+					temp['connector'] = 'date';
+					temp['next'] = word;
+					listOfObjs.push(temp);
+					temp = null;
+					//subject = word;
+				}
+				
+			}
+			/*else if (word.indexOf('during') != -1)	{
+				alert(word);
+				alert(subject);
+				if (subject != "")	{
+					var timeFrame = findConnectorNode(subject,"date");
+					var temp = {};
+					temp['next'] = timeFrame;
+					temp['previous'] = subject;
+					temp['connector'] = 'date';
+					listOfObjs.push(temp);
+					temp = null;
+				}
+				else {
+					var timeFrame = findConnectorNode(mainSubject,"date");
+					var temp = {};
+					temp['next'] = timeFrame;
+					temp['previous'] = mainSubject;
+					temp['connector'] = 'date';
+					listOfObjs.push(temp);
+					temp = null;
+				}
+			}*/
+			else if (tag === "NN")	{
+				typeNN();
+			}
+			else if (tag === "location")	{
+				typeNN("location");
+			}
+			else if (tag === ".")	{
+				//mainSubject
+				if (j < newWords.length - 1)	{
+					nextWord = newWords[j+1];
+					if (existsInListOfObjs(listOfObjs, nextWord) === true) {
+						mainSubject = "";
+						//subject = "";
+					}
+					//else {
+						//subject = mainSubject;
+					//}
+				}
+				subject = "";
+				obj = null;
+			}
+	
+	}
+	return listOfObjs;
+	
+}
+
+
+
+function existsInListOfObjs(listOfObjs, nextWord)	{
+	for (var i = 0 ; i < listOfObjs.length ; i++)	{
+		var temp = listOfObjs[i];
+		var next = temp['next'];
+		var previous = temp['previous'];
+		var connect = temp['connector'];
+		if (next === nextWord || previous === nextWord)	{
+			return true;
+		}
+	}
+	return false;
+}
+
+
+function createGraph(obj)	{
+	graph = new Springy.Graph();
+	var dict = {};
+	for (var i = 0 ; i < obj.length ; i++)	{
+		var value = obj[i];
+		var previous = value['previous'];
+		var connector = value['connector'];
+		var next = value['next'];
+		if (dict[previous])	{
+			if (dict[next])	{
+				//if (dict[connectr])	{
+				
+				//}
+				graph.newEdge(dict[previous], dict[next], {color: '#00A0B0', label: connector});
+			}
+			else {
+				dict[next] = graph.newNode({label: next});
+				graph.newEdge(dict[previous], dict[next], {color: '#00A0B0', label: connector});
+				
+			}
+		}
+		else if (dict[next])	{
+			dict[previous] = graph.newNode({label: previous});
+			graph.newEdge(dict[previous], dict[next], {color: '#00A0B0', label: connector});
+		}
+		else {
+			dict[previous] = graph.newNode({label: previous});
+			dict[next] = graph.newNode({label: next});
+			graph.newEdge(dict[previous], dict[next], {color: '#00A0B0', label: connector});
+		}
+	}
+	jQuery(function(){
+	  var springy = window.springy = jQuery('#springydemo').springy({
+		graph: graph,
+		nodeSelected: function(node){
+		  console.log('Node selected: ' + JSON.stringify(node.data));
+		}
+	  });
+	});
+}
+
+
+
+
+function similar_text(first, second, percent) {
+  //  discuss at: http://phpjs.org/functions/similar_text/
+  // original by: Rafał Kukawski (http://blog.kukawski.pl)
+  // bugfixed by: Chris McMacken
+  // bugfixed by: Jarkko Rantavuori original by findings in stackoverflow (http://stackoverflow.com/questions/14136349/how-does-similar-text-work)
+  // improved by: Markus Padourek (taken from http://www.kevinhq.com/2012/06/php-similartext-function-in-javascript_16.html)
+  //   example 1: similar_text('Hello World!', 'Hello phpjs!');
+  //   returns 1: 7
+  //   example 2: similar_text('Hello World!', null);
+  //   returns 2: 0
+
+  if (first === null || second === null || typeof first === 'undefined' || typeof second === 'undefined') {
+    return 0;
+  }
+
+  first += '';
+  second += '';
+
+  var pos1 = 0,
+    pos2 = 0,
+    max = 0,
+    firstLength = first.length,
+    secondLength = second.length,
+    p, q, l, sum;
+
+  max = 0;
+
+  for (p = 0; p < firstLength; p++) {
+    for (q = 0; q < secondLength; q++) {
+      for (l = 0;
+        (p + l < firstLength) && (q + l < secondLength) && (first.charAt(p + l) === second.charAt(q + l)); l++)
+      ;
+      if (l > max) {
+        max = l;
+        pos1 = p;
+        pos2 = q;
+      }
+    }
+  }
+
+  sum = max;
+
+  if (sum) {
+    if (pos1 && pos2) {
+      sum += this.similar_text(first.substr(0, pos1), second.substr(0, pos2));
+    }
+
+    if ((pos1 + max < firstLength) && (pos2 + max < secondLength)) {
+      sum += this.similar_text(first.substr(pos1 + max, firstLength - pos1 - max), second.substr(pos2 + max,
+        secondLength - pos2 - max));
+    }
+  }
+
+  if (!percent) {
+    return sum;
+  } else {
+    return (sum * 200) / (firstLength + secondLength);
+  }
+}
+
+
+/*
+var graph = new Springy.Graph();
+
+var dennis = graph.newNode({
+  label: 'Dennis',
+  ondoubleclick: function() { console.log("Hello!"); }
+});
+var michael = graph.newNode({label: 'Michael'});
+var jessica = graph.newNode({label: 'Jessica'});
+var timothy = graph.newNode({label: 'Timothy'});
+var barbara = graph.newNode({label: 'Barbara'});
+var franklin = graph.newNode({label: 'Franklin'});
+var monty = graph.newNode({label: 'Monty'});
+var james = graph.newNode({label: 'James'});
+var bianca = graph.newNode({label: 'Bianca'});
+
+graph.newEdge(dennis, michael, {color: '#00A0B0'});
+graph.newEdge(michael, dennis, {color: '#6A4A3C'});
+graph.newEdge(michael, jessica, {color: '#CC333F'});
+graph.newEdge(jessica, barbara, {color: '#EB6841'});
+graph.newEdge(michael, timothy, {color: '#EDC951'});
+graph.newEdge(franklin, monty, {color: '#7DBE3C'});
+graph.newEdge(dennis, monty, {color: '#000000'});
+graph.newEdge(monty, james, {color: '#00A0B0'});
+graph.newEdge(barbara, timothy, {color: '#6A4A3C'});
+graph.newEdge(dennis, bianca, {color: '#CC333F'});
+graph.newEdge(bianca, monty, {color: '#EB6841'});
+
+jQuery(function(){
+  var springy = window.springy = jQuery('#springydemo').springy({
+    graph: graph,
+    nodeSelected: function(node){
+      console.log('Node selected: ' + JSON.stringify(node.data));
+    }
+  });
+});*/
+</script>
+
+<canvas id="springydemo" width="1640" height="700" />
+</body>
+</html>
