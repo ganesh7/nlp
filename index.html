@@ -78,6 +78,54 @@ function isValidDate(text)	{
 	}
 }
 
+function generateQuestions()	{
+	var q = askQuestions();
+	displayQuestions(q);
+}
+
+function displayQuestions(questions)	{
+	for (var i = 0 ; i < questions.length ; i++)	{
+		var question = questions[i];
+		var temp = document.getElementById("easyQuestion").innerHTML;
+		temp+= "\n"+question;
+		document.getElementById("easyQuestion").innerHTML = temp;
+	}
+
+
+}
+
+function askQuestions()	{
+	var questions = [];
+	//for (var i = 0 ; i < graph.nodes.length ; i++)	{
+	for (var i = 0 ; i < graph.edges.length ; i++)	{	
+		var edge = graph.edges[i];
+		var edgeLabel = edge.data.label;
+		var source = edge.source;
+		var sourceLabel = source.data.label;
+		var target = edge.target;
+		var targetLabel = target.data.label;
+		var str = "";
+		switch(edgeLabel) {
+		case "date":
+		  //return "date"
+		  str+= "When was "+sourceLabel+" ?"
+		  break;
+		case "location":
+		  //return "location"
+		  str+= "Where was "+sourceLabel+" ?"
+		  break;
+		default:
+			str += "What "+sourceLabel+" "+edgeLabel+" ?"
+		  //return "misc"
+		}
+		//return str;
+		questions.push(str);
+
+
+	}
+	return questions;
+}
+
 function answerQuestions()	{
 	var question1 = document.getElementById('mediumAnswer').dataset.text;
 	return processQuestion(question1);
