@@ -1,81 +1,43 @@
-ABOUT:
+ALERT ALERT ALERT do not git clone until you have setup as below.
 
-jspos is a Javascript port of Mark Watson's FastTag Part of Speech Tagger which 
-was itself based on Eric Brill's trained rule set and English lexicon.
-jspos also includes a basic lexer that can be used to extract words and other
-tokens from text strings.
 
-LICENSE:
+Get Started:
 
-jspos is licensed under the GNU LGPLv3
+1. navigate to http://nodejs.org/
 
-FILES:
+2. click install
 
-lexicon.js_ - Javascript version of Eric Brill's English lexicon
-lexer.js - Lexer to break a sentence into taggable tokens (e.g. words)
-POSTagger.js - the Part of Speech tagger
+For Mac:
 
-You'll typically need to include all 3 files.
+3. Open two tabs in terminal
 
-USAGE:
+4. On tab no. 1, cd to node directory, probably something called "basicNodeServer" or just "server"
 
-var words = new Lexer().lex("This is some sample text. This text can contain multiple sentences.");
-var taggedWords = new POSTagger().tag(words);
-for (i in taggedWords) {
-    var taggedWord = taggedWords[i];
-    var word = taggedWord[0];
-    var tag = taggedWord[1];
-}
+4.a. NOTE: the directory should contain at least two files (app.js, server.js) and two folders (node_modules and www).
 
-ACKNOWLEDGEMENTS:
+5. On tab no. 2, cd to node directory, probably something called "basicNodeServer"
 
-Thanks to Mark Watson for writing FastTag, which served as the basis for jspos.
+6. On tab no. 2, further navigate down to /www/, clone repo here.
 
-Thanks to Toby Rahilly for compressing the lexicon.
+7. On tab no. 1, type the following and hit enter, "node app.js"
 
-TAGS:
+8. open web browser, navigate to localhost:8080/nlp/index.html
 
-CC Coord Conjuncn           and,but,or
-CD Cardinal number          one,two
-DT Determiner               the,some
-EX Existential there        there
-FW Foreign Word             mon dieu
-IN Preposition              of,in,by
-JJ Adjective                big
-JJR Adj., comparative       bigger
-JJS Adj., superlative       biggest
-LS List item marker         1,One
-MD Modal                    can,should
-NN Noun, sing. or mass      dog
-NNP Proper noun, sing.      Edinburgh
-NNPS Proper noun, plural    Smiths
-NNS Noun, plural            dogs
-POS Possessive ending       ’s
-PDT Predeterminer           all, both
-PP$ Possessive pronoun      my,one’s
-PRP Personal pronoun         I,you,she
-RB Adverb                   quickly
-RBR Adverb, comparative     faster
-RBS Adverb, superlative     fastest
-RP Particle                 up,off
-SYM Symbol                  +,%,&
-TO “to”                     to
-UH Interjection             oh, oops
-VB verb, base form          eat
-VBD verb, past tense        ate
-VBG verb, gerund            eating
-VBN verb, past part         eaten
-VBP Verb, present           eat
-VBZ Verb, present           eats
-WDT Wh-determiner           which,that
-WP Wh pronoun               who,what
-WP$ Possessive-Wh           whose
-WRB Wh-adverb               how,where
-, Comma                     ,
-. Sent-final punct          . ! ?
-: Mid-sent punct.           : ; —
-$ Dollar sign               $
-# Pound sign                #
-" quote                     "
-( Left paren                (
-) Right paren               )
+
+For Windows:
+
+3. After downloading and installing node there will be a new program called "Node.js Command Prompt"
+
+4. Open two windows of this command prompt
+
+5. On window no. 1, cd to node directory, probably something called "basicNodeServer" or just "server"
+
+5.a. NOTE: the directory should contain at least two files (app.js, server.js) and two folders (node_modules and www). MAKE sure You are in the right directory.
+
+6. On window no. 2, cd to node directory, probably something called "basicNodeServer" or just "server"
+
+7. On window no. 2, further navigate down to /www/, clone repo here.
+
+8. On window no. 1, type the following and hit enter, "node app.js"
+
+9. open web browser, navigate to localhost:8080/nlp/index.html
