@@ -13,11 +13,13 @@ For Mac:
 
 3. Open two tabs in terminal
 
-4. On tab no. 1, cd to node directory, probably something called "basicNodeServer" or just "server"
+4. Go to http://www.kosbie.net/cmu/fall-12/15-237/handouts/basicNodeServer.zip   this will download a file, unzip it and place it on destop or somewhere convienient.
+
+4. On tab no. 1, cd to unzipped directory, something called "server"
 
 4.a. NOTE: the directory should contain at least two files (app.js, server.js) and two folders (node_modules and www).
 
-5. On tab no. 2, cd to node directory, probably something called "basicNodeServer"
+5. On tab no. 2, cd to unzipped directory, something called "server"
 
 6. On tab no. 2, further navigate down to /www/, clone repo here.
 
