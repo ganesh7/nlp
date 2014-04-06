@@ -1,5 +1,7 @@
 ALERT ALERT ALERT do not git clone until you have setup as below.
 
+SIDE NOTE: Learn javascript from: http://www.kosbie.net/cmu/fall-12/15-237/     and click on schedule.
+
 
 Get Started:
 
