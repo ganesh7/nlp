@@ -72,7 +72,8 @@ value="Batman is a fictional character, a comic book superhero appearing in comi
 <script type="text/javascript" src="POSTagger.js"></script>
 <script>
 
-
+var gGraphDict = {}; // dictionary representation of the graph
+var subGraphs = {}; // dictionary keying composite name - > array of nodes
 
 function isDTSpecial(word)	{
 	word = word.toLowerCase();
@@ -2456,6 +2457,100 @@ function similar_text(first, second, percent) {
   }
 }
 
+// Represent graph as dictionary 
+function createGraphDict() {
+	var edges = graph.edges;
+	for (var i = 0; i < edges.length; i++) {
+		var curEdge = edges[i];
+		var edgeLabel = cur.data.label;
+		var sLabel = curEdge.source.data.label;
+		var tLabel = curEdge.target.data.label;
+		if (!(sLabel in gGraphDict)) {
+			var curArray = [];
+			curArray.push([tLabel, edgeLabel]);
+			gGraphDict[sLabel] = curArray;
+		}
+		else {
+			gGraphDict[sLabel].push([tLabel, edgeLabel]);
+		}
+	}
+}
+
+
+function createSubGraphs(size) {
+	// Go through each node
+	for (var node in gGraphDict) {
+		var curSet = [];
+		var curNode = node;
+		curSet.push(curNode);
+		var tooSmallFlag = false;
+
+		// Generate subgraph by walking the neighbors
+		while (curSet.length < size) {
+			var curTargets = gGraphDict[curNode];
+			if (curTargets.length == 0) {
+				tooSmallFlag = true;
+				break;
+			}
+			else {
+				for (var i = 0; i < curTargets.length; i++) {
+					var cTarget = curTarget[i][0];
+					if (!(cTarget in curSet)) {
+						curSet.push(cTarget);
+						curNode = cTarget;
+						break;
+					}
+				}
+			}
+		}
+
+		if (!tooSmallFlag) {
+			var names = [];
+			for (var subGraphNode in curSet) {
+				names.push(subGraphNode.data.label);
+			}
+			names.sort();
+			var stringKey = "";
+			for (var i = 0; i < names.length; i++) {
+				stringKey += names[i];
+			}
+			subGraphs[stringKey] = curSet;
+		}
+	}
+}
+
+function generateQuestions() {
+	var prefix = "What thing "; // Hacky as fuck 
+	var questions = "";
+	// Currently assuming only subgraphs of size 2, lol
+	for (var stringKey in subGraphs) {
+		var curQ = prefix;
+		var curSet = subGraphs[stringKey];
+		if (curSet.length == 2) {
+			var src;
+			var trg;
+			if (curSet[0] in curSet[1]) {
+				src = curSet[1];
+				trg = curSet[0];
+			}
+			else {
+				src = curSet[0];
+				trg = curSet[1];
+			}
+			var srcTargets = gGraphDict[src];
+			for (var i = 0; i < srcTargets.length; i++) {
+				var curTarget = srcTargets[0];
+				if (curTarget == trg) {
+					curQ += srcTargets[1] + " " + curTarget + "?";
+				}
+			}
+			questions += curQ + "\n";
+		}
+		return questions;
+	}
+
+
+}
 
 /*
 var graph = new Springy.Graph();
